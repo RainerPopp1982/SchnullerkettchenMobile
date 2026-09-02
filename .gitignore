@@ -1,0 +1,8 @@
+# Kompilierte Build-Ausgaben - werden bei jedem Build neu erzeugt, gehören nicht ins Repo
+[Bb]in/
+[Oo]bj/
+
+# Lokaler Visual-Studio-Cache und benutzerspezifische Einstellungen
+.vs/
+*.user
+*.suo

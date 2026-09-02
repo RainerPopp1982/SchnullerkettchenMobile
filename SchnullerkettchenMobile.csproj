@@ -1,0 +1,59 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0-android;net8.0-ios</TargetFrameworks>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>SchnullerkettchenMobile</RootNamespace>
+    <UseMaui>true</UseMaui>
+    <SingleProject>true</SingleProject>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <ApplicationTitle>Schnullerkettchen WaWi</ApplicationTitle>
+    <ApplicationId>de.schnullerkettchen.wawi.mobile</ApplicationId>
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <ApplicationVersion>1</ApplicationVersion>
+
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+    <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</TargetPlatformMinVersion>
+
+    <!-- Standardmäßig baut der "Google Play"-Publish-Wizard ein .aab (Android App Bundle),
+         das Format für den Play Store. Für eine direkt installierbare Datei (Sideload/Weitergabe)
+         wird stattdessen ein .apk gebraucht - das hier erzwingt für Android-Release-Builds immer .apk. -->
+    <AndroidPackageFormat Condition="'$(Configuration)'=='Release'">apk</AndroidPackageFormat>
+
+    <!-- Ohne feste RuntimeIdentifiers kann ein Release-Build nur für eine einzelne Prozessor-
+         Architektur gebaut werden - passt die nicht zum Zielgerät, verweigert Android die
+         Installation ("nicht kompatibel mit diesem Gerät"). Diese Liste deckt praktisch alle
+         echten Android-Geräte (arm64, ältere 32-Bit-Geräte) sowie x86_64-Emulatoren ab, das
+         Ergebnis ist eine einzige APK mit allen Architekturen ("Fat APK"). -->
+    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">android-arm64;android-arm;android-x64</RuntimeIdentifiers>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- App-Icon (einfaches, selbst erstelltes SVG - kann jederzeit gegen ein eigenes Logo ausgetauscht werden) -->
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#2B6CB0" />
+
+    <!-- Splash Screen -->
+    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#2B6CB0" BaseSize="128,128" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Microsoft.Maui.Controls wird über UseMaui/das MAUI-Workload implizit in der passenden
+         Version referenziert - hier bewusst nicht nochmal explizit mit fester Version gepinnt,
+         das würde nur zu Versionskonflikten mit dem installierten Workload führen. -->
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+    <!-- MySqlConnector statt MySql.Data: reine .NET-Implementierung ohne native Abhängigkeiten,
+         dadurch zuverlässiger auf Android/iOS als der ADO.NET-Treiber der Desktop-App. -->
+    <PackageReference Include="MySqlConnector" Version="2.6.2" />
+    <!-- SkiaSharp (3.x, nicht 4.x - die neue 4.x-Serie hat noch keine offiziellen net8.0-android/
+         net8.0-ios-Pakete) zum Zeichnen des Adressetiketts als Bild, siehe Util/LabelPrinter.cs. -->
+    <PackageReference Include="SkiaSharp" Version="3.119.4" />
+    <!-- FluentFTP, gleiche Version wie die Desktop-App (FTPUpload/UploadFiles.cs), für den
+         Bilder-Upload (siehe Data/ImageUploadService.cs). Mobil wird die asynchrone
+         AsyncFtpClient-API verwendet statt der synchronen FtpClient-Klasse am Desktop. -->
+    <PackageReference Include="FluentFTP" Version="53.0.2" />
+  </ItemGroup>
+
+</Project>
