@@ -64,6 +64,10 @@ Platforms/      Android- und iOS-spezifischer Bootstrap-Code
 Resources/      Icons, Splash Screen, Farben/Styles (mit Dark-Mode-Unterstützung)
 ```
 
+## Installierbare iOS-Version ohne eigenen Mac
+
+`.github/workflows/ios-build.yml` baut über GitHub Actions (macOS-Runner in der Cloud) eine installierbare Ad-Hoc-IPA, ganz ohne eigenen Mac. Einrichtung (Apple-Zertifikat, Provisioning-Profil, GitHub Secrets) siehe **`IOS-CI-ANLEITUNG.md`**.
+
 ## Bekannt: nicht in dieser Sandbox gebaut
 
 Dieses Projekt wurde ohne lokal installiertes .NET-/MAUI-SDK erstellt (kein Internetzugriff zum Nachinstallieren in dieser Umgebung) und daher **nicht** hier kompiliert/getestet. Der Code folgt exakt dem Standard-Aufbau eines `dotnet new maui`-Projekts – ein erster Build in Visual Studio ist trotzdem der wichtigste nächste Schritt, um eventuelle Tippfehler zu finden.

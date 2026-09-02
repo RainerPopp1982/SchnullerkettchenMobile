@@ -1,0 +1,94 @@
+name: iOS Build (Ad-Hoc IPA)
+
+# Manuell im "Actions"-Tab startbar, zusätzlich automatisch bei jedem Push auf main.
+# Voraussetzung: die in IOS-CI-ANLEITUNG.md beschriebenen Secrets sind im Repository hinterlegt
+# (Settings -> Secrets and variables -> Actions).
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'SchnullerkettchenMobile.csproj'
+      - '**/*.cs'
+      - '**/*.xaml'
+      - '.github/workflows/ios-build.yml'
+
+jobs:
+  build-ios:
+    # macOS-Runner ist Pflicht - Apples Xcode-Toolchain, die MAUI intern für den iOS-Build
+    # aufruft, läuft ausschließlich auf macOS.
+    runs-on: macos-14
+
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+
+      - name: .NET SDK installieren
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # Xcode-Version fixieren, damit der Build nicht durch einen Runner-Image-Wechsel plötzlich
+      # bricht. Passende Version ggf. an die jeweils unterstützte .NET-MAUI-iOS-Workload-Version
+      # anpassen (siehe IOS-CI-ANLEITUNG.md).
+      - name: Xcode-Version festlegen
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.4'
+
+      - name: MAUI-Workload installieren
+        run: dotnet workload install maui --source https://api.nuget.org/v3/index.json
+
+      # Zertifikat + Provisioning-Profil liegen als Base64-Text in den Secrets (siehe Anleitung)
+      # und werden hier in einen temporären Keychain importiert, den nur dieser CI-Lauf kennt.
+      - name: Signatur-Zertifikat und Profil einrichten
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_P12_BASE64 }}
+          P12_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.IOS_PROVISION_PROFILE_BASE64 }}
+          KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
+        run: |
+          set -e
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
+          KEYCHAIN_PATH=$RUNNER_TEMP/ios-build.keychain-db
+
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
+          echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH login.keychain
+
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
+
+      # CODESIGN_IDENTITY und PROVISION_PROFILE_NAME als Repository-"Variables" (nicht Secrets,
+      # da unkritisch) hinterlegen - siehe IOS-CI-ANLEITUNG.md für die genauen Werte.
+      - name: iOS-App bauen und signieren
+        run: >
+          dotnet publish SchnullerkettchenMobile.csproj
+          -f net8.0-ios
+          -c Release
+          -p:RuntimeIdentifier=ios-arm64
+          -p:ArchiveOnBuild=true
+          -p:CodesignKey="${{ vars.IOS_CODESIGN_IDENTITY }}"
+          -p:CodesignProvision="${{ vars.IOS_PROVISION_PROFILE_NAME }}"
+          -o ./publish-output
+
+      - name: IPA als Download-Artefakt bereitstellen
+        uses: actions/upload-artifact@v4
+        with:
+          name: SchnullerkettchenMobile-iOS
+          path: ./publish-output/**/*.ipa
+          if-no-files-found: error
+
+      # Aufräumen, damit der temporäre Keychain nicht auf dem (wiederverwendeten) Runner-Image
+      # hängen bleibt.
+      - name: Keychain entfernen
+        if: always()
+        run: security delete-keychain $RUNNER_TEMP/ios-build.keychain-db || true
