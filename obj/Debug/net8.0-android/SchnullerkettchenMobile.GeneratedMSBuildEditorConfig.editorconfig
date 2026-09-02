@@ -1,0 +1,73 @@
+is_global = true
+build_property.EnableAotAnalyzer = 
+build_property.EnableSingleFileAnalyzer = true
+build_property.EnableTrimAnalyzer = false
+build_property.IncludeAllContentForSelfExtract = 
+build_property.TargetFramework = net8.0-android
+build_property.TargetPlatformMinVersion = 21.0
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = false
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = SchnullerkettchenMobile
+build_property.ProjectDir = E:\Git\Wawi\SchnullerkettchenMobile\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.EffectiveAnalysisLevelStyle = 8.0
+build_property.EnableCodeStyleSeverity = 
+
+[E:/Git/Wawi/SchnullerkettchenMobile/App.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = SchnullerkettchenMobile.App.xaml
+build_metadata.AdditionalFiles.TargetPath = App.xaml
+build_metadata.AdditionalFiles.RelativePath = App.xaml
+
+[E:/Git/Wawi/SchnullerkettchenMobile/AppShell.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = SchnullerkettchenMobile.AppShell.xaml
+build_metadata.AdditionalFiles.TargetPath = AppShell.xaml
+build_metadata.AdditionalFiles.RelativePath = AppShell.xaml
+
+[E:/Git/Wawi/SchnullerkettchenMobile/Resources/Styles/Colors.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = SchnullerkettchenMobile.Resources.Styles.Colors.xaml
+build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Colors.xaml
+build_metadata.AdditionalFiles.RelativePath = Resources\Styles\Colors.xaml
+
+[E:/Git/Wawi/SchnullerkettchenMobile/Resources/Styles/Styles.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = SchnullerkettchenMobile.Resources.Styles.Styles.xaml
+build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Styles.xaml
+build_metadata.AdditionalFiles.RelativePath = Resources\Styles\Styles.xaml
+
+[E:/Git/Wawi/SchnullerkettchenMobile/Views/ArticleDetailPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = SchnullerkettchenMobile.Views.ArticleDetailPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\ArticleDetailPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\ArticleDetailPage.xaml
+
+[E:/Git/Wawi/SchnullerkettchenMobile/Views/ArticleSearchPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = SchnullerkettchenMobile.Views.ArticleSearchPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\ArticleSearchPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\ArticleSearchPage.xaml
+
+[E:/Git/Wawi/SchnullerkettchenMobile/Views/MainMenuPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = SchnullerkettchenMobile.Views.MainMenuPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\MainMenuPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\MainMenuPage.xaml
+
+[E:/Git/Wawi/SchnullerkettchenMobile/Views/OrdersPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = SchnullerkettchenMobile.Views.OrdersPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\OrdersPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\OrdersPage.xaml
+
+[E:/Git/Wawi/SchnullerkettchenMobile/Views/VariantEditPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = SchnullerkettchenMobile.Views.VariantEditPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\VariantEditPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\VariantEditPage.xaml
