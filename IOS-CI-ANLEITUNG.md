@@ -1,8 +1,11 @@
 # iOS-Build per GitHub Actions – Einrichtung
 
-Dieser Workflow (`.github/workflows/ios-build.yml`) baut bei jedem Push auf `main` (oder manuell per Knopfdruck) eine installierbare **Ad-Hoc-IPA** – ganz ohne eigenen Mac. Gebaut wird auf einem von GitHub bereitgestellten macOS-Runner; Apples Xcode-Toolchain läuft zwingend auf macOS, das lässt sich nicht umgehen, wohl aber outsourcen.
+Es gibt zwei Workflows, für zwei unterschiedliche Verteilwege - Apples Xcode-Toolchain läuft in beiden Fällen zwingend auf einem (von GitHub bereitgestellten) macOS-Runner, das lässt sich nicht umgehen, wohl aber outsourcen:
 
-Eine Ad-Hoc-IPA lässt sich nur auf vorher registrierten Geräten installieren (max. 100 pro Jahr) – für internes Testen ist das genau richtig. Für eine spätere Verteilung über TestFlight oder den App Store braucht es einen leicht abgewandelten Export-Typ; sagt Bescheid, falls das gebraucht wird.
+- **`.github/workflows/ios-build.yml`** – baut eine **Ad-Hoc-IPA** zum manuellen Verteilen (z. B. über diawi.com). Nur auf vorher per UDID registrierten Geräten installierbar (max. 100/Jahr).
+- **`.github/workflows/ios-testflight.yml`** – baut die App und lädt sie direkt zu **TestFlight** hoch ("iTunes" heißt heute App Store Connect, früher iTunes Connect). Für rein internen Einsatz meist die praktischere Wahl: keine Geräte-UDIDs registrieren, Tester werden einfach per E-Mail eingeladen, Installation läuft über die offizielle TestFlight-App, Update-Benachrichtigung inklusive.
+
+Beide brauchen dasselbe Zertifikat (Schritt 1), aber unterschiedliche Provisioning-Profile. Schritt 1–2 und 5 gelten für beide Workflows; Schritt 3/4 gibt es separat für Ad-Hoc und TestFlight.
 
 ## Voraussetzung: Apple Developer Program
 
@@ -14,8 +17,16 @@ Normalerweise übernimmt ein Mac (Keychain Access) das Erzeugen des Signierschl�
 
 ```bash
 openssl genrsa -out ios_distribution.key 2048
-openssl req -new -key ios_distribution.key -out ios_distribution.csr -subj "/emailAddress=shopping@rainer-popp.de, CN=Rainer Popp, C=DE"
+openssl req -new -key ios_distribution.key -out ios_distribution.csr
 ```
+
+Der zweite Befehl fragt interaktiv die Angaben ab – nur ausfüllen:
+- **Country Name**: `DE`
+- **Common Name**: euer Name, z. B. `Rainer Popp`
+- **Email Address**: eure E-Mail
+- Alle anderen Felder (State, Organization, ...) einfach mit Enter überspringen
+
+**Hinweis für Git Bash unter Windows:** Bewusst *ohne* `-subj "/emailAddress=.../CN=.../C=DE"` beschrieben, weil Git Bash (MSYS) Argumente, die mit `/` beginnen, automatisch als Windows-Pfad umdeutet und dabei verstümmelt – führt zu Fehlern wie *"subject name is expected to be in the format ..."* mit einem `C:/Program Files/Git/...`-Pfad in der Fehlermeldung. Der interaktive Weg oben umgeht das Problem komplett. Wer unbedingt `-subj` nutzen will: mit vorangestelltem `MSYS_NO_PATHCONV=1` ausführen, oder den Wert mit doppeltem Slash beginnen lassen (`"//emailAddress=..."`).
 
 1. Im [Apple Developer Portal](https://developer.apple.com/account/resources/certificates/list) → Certificates → "+" → **Apple Distribution** auswählen.
 2. Die erzeugte `ios_distribution.csr` hochladen, Zertifikat herunterladen (`.cer`).
@@ -26,17 +37,17 @@ openssl x509 -in ios_distribution.cer -inform DER -out ios_distribution.pem -out
 openssl pkcs12 -export -inkey ios_distribution.key -in ios_distribution.pem -out ios_distribution.p12 -password pass:DEIN_PASSWORT
 ```
 
-## Schritt 2: Testgeräte registrieren
+## Schritt 2: Testgeräte registrieren (nur für Ad-Hoc, für TestFlight überspringen)
 
-Im Portal unter *Devices* → "+" → Gerätename + UDID jedes iPhones eintragen, auf dem die App später installiert werden soll. Die UDID findet man z. B. über iTunes/Finder (Gerät anschließen, auf die Seriennummer klicken) oder Apple Configurator.
+Im Portal unter *Devices* → "+" → Gerätename + UDID jedes iPhones eintragen, auf dem die App später installiert werden soll. Die UDID findet man z. B. über iTunes/Finder (Gerät anschließen, auf die Seriennummer klicken) oder Apple Configurator. Für TestFlight (Schritt 3b) entfällt das komplett – Apple kümmert sich dort selbst um die Geräteverteilung.
 
-## Schritt 3: App-ID und Ad-Hoc-Profil anlegen
+## Schritt 3a: App-ID und Ad-Hoc-Profil anlegen (für `ios-build.yml`)
 
 1. *Identifiers* → "+" → App-ID mit Bundle-ID `de.schnullerkettchen.wawi.mobile` (siehe `SchnullerkettchenMobile.csproj`, `ApplicationId`) anlegen, falls noch nicht vorhanden.
 2. *Profiles* → "+" → **Ad Hoc** → die App-ID, das eben erzeugte Zertifikat und die registrierten Geräte auswählen → Profil herunterladen (`.mobileprovision`).
 3. Profilnamen notieren (steht im Portal neben dem Profil) – der wird gleich als Repository-Variable gebraucht.
 
-## Schritt 4: Werte in GitHub hinterlegen
+## Schritt 4a: Ad-Hoc-Werte in GitHub hinterlegen
 
 Zertifikat und Profil müssen als Base64-Text in die Secrets, da GitHub nur Text-Werte speichert:
 
@@ -61,7 +72,48 @@ Im Repository unter **Settings → Secrets and variables → Actions**:
 | Name | Wert |
 |---|---|
 | `IOS_CODESIGN_IDENTITY` | `Apple Distribution: <Dein Name> (<TEAM-ID>)` – exakter Name steht in Keychain Access bzw. im Portal unter *Certificates* |
-| `IOS_PROVISION_PROFILE_NAME` | Der in Schritt 3 notierte Profilname |
+| `IOS_PROVISION_PROFILE_NAME` | Der in Schritt 3a notierte Profilname |
+
+## Schritt 3b: App-Store-Profil und API-Key anlegen (für `ios-testflight.yml`)
+
+**Provisioning-Profil:**
+
+1. Gleiche App-ID wie oben (falls noch nicht angelegt, siehe Schritt 3a.1).
+2. *Profiles* → "+" → **App Store** (nicht Ad Hoc!) → die App-ID und das Zertifikat aus Schritt 1 auswählen → Profil herunterladen.
+3. Profilnamen notieren.
+
+**App Store Connect API-Key** (getrennt vom Developer-Portal, unter [appstoreconnect.apple.com](https://appstoreconnect.apple.com/access/integrations/api)):
+
+1. *Integrations* → *App Store Connect API* → "+" → Rolle **App Manager** → Key erzeugen.
+2. Die `.p8`-Datei **sofort herunterladen** – das geht nur einmal, bei Verlust muss ein neuer Key erzeugt werden.
+3. `Key ID` und `Issuer ID` notieren (stehen direkt auf der Seite).
+
+## Schritt 4b: TestFlight-Werte in GitHub hinterlegen
+
+```bash
+base64 -i appstore_profil.mobileprovision | tr -d '\n' > appstore_profile_base64.txt
+```
+
+**Secrets:**
+
+| Name | Wert |
+|---|---|
+| `IOS_APPSTORE_PROVISION_PROFILE_BASE64` | Inhalt von `appstore_profile_base64.txt` |
+| `APPSTORE_API_PRIVATE_KEY` | Kompletter Inhalt der `.p8`-Datei aus Schritt 3b |
+
+`IOS_CERTIFICATE_P12_BASE64`, `IOS_CERTIFICATE_PASSWORD` und `IOS_KEYCHAIN_PASSWORD` aus Schritt 4a werden wiederverwendet (gleiches Zertifikat).
+
+**Variables:**
+
+| Name | Wert |
+|---|---|
+| `IOS_APPSTORE_PROVISION_PROFILE_NAME` | Der in Schritt 3b notierte Profilname |
+| `APPSTORE_API_KEY_ID` | Key ID aus Schritt 3b |
+| `APPSTORE_ISSUER_ID` | Issuer ID aus Schritt 3b |
+
+`IOS_CODESIGN_IDENTITY` aus Schritt 4a wird wiederverwendet.
+
+**TestFlight-Build-Nummer:** Der Workflow setzt die Build-Nummer automatisch auf die GitHub-Actions-Laufnummer (`-p:ApplicationVersion=${{ github.run_number }}`) – ohne eindeutig steigende Nummer lehnt TestFlight jeden zweiten Upload mit *"duplicate build number"* ab, das übernimmt der Workflow also automatisch.
 
 ## Schritt 5: Projekt zu GitHub pushen
 
@@ -80,14 +132,16 @@ git push -u origin main
 
 ## Schritt 6: Workflow starten
 
-Nach dem Push läuft der Workflow automatisch an. Manuell geht es jederzeit über den Tab **Actions** → *iOS Build (Ad-Hoc IPA)* → **Run workflow**.
+Nach dem Push laufen beide Workflows automatisch an (bei jedem Push auf `main`). Manuell geht es jederzeit über den Tab **Actions** → *iOS Build (Ad-Hoc IPA)* bzw. *iOS Build (TestFlight)* → **Run workflow**. Braucht ihr nur einen der beiden Wege, die jeweils andere `.yml`-Datei einfach aus `.github/workflows/` löschen.
 
-## Schritt 7: IPA installieren
+## Schritt 7: App installieren
 
-Nach erfolgreichem Lauf: im Actions-Tab auf den Lauf klicken → unter **Artifacts** die `SchnullerkettchenMobile-iOS`-Datei herunterladen (enthält die `.ipa`). Installieren auf einem der registrierten Geräte:
+**Ad-Hoc (`ios-build.yml`):** Nach erfolgreichem Lauf im Actions-Tab auf den Lauf klicken → unter **Artifacts** die `SchnullerkettchenMobile-iOS`-Datei herunterladen (enthält die `.ipa`). Installieren auf einem der registrierten Geräte:
 
 - **Apple Configurator 2** (kostenlos, Mac erforderlich): iPhone per Kabel verbinden, IPA per Drag & Drop installieren.
 - **Ohne Mac:** einen kostenlosen Ad-Hoc-Verteildienst wie [diawi.com](https://www.diawi.com/) nutzen – IPA dort hochladen, Link/QR-Code direkt am iPhone in Safari öffnen, App installiert sich darüber (Gerät muss im Profil aus Schritt 2 registriert sein).
+
+**TestFlight (`ios-testflight.yml`):** Der Upload läuft automatisch am Ende des Workflows. Danach in [App Store Connect](https://appstoreconnect.apple.com/) → *TestFlight* → *Interne Tests* (oder *Externe Tests*) die gewünschten Personen per E-Mail als Tester hinzufügen. Sie bekommen eine Einladung, installieren die **TestFlight**-App aus dem App Store und darüber dann eure App – inklusive automatischer Update-Benachrichtigung bei jedem neuen Upload. Ein neuer Build braucht bis zu 15–30 Minuten, bis er nach dem Upload für Tester bereitsteht (Apples automatische Verarbeitung).
 
 ## Wichtig: Kosten der macOS-Runner
 
@@ -96,3 +150,7 @@ Das Repository muss **privat** bleiben (siehe oben). Private Repos haben ein mon
 ## Hinweis zur Zuverlässigkeit
 
 Dieser Workflow wurde nach bekannten, gängigen Mustern für .NET-MAUI-iOS-CI-Builds erstellt, aber in dieser Umgebung nicht selbst gegen einen echten Apple-Account getestet (kein Zugriff auf Xcode/macOS). Beim ersten echten Lauf kann es sein, dass Feinheiten nachjustiert werden müssen – am wahrscheinlichsten die exakte Schreibweise von `IOS_CODESIGN_IDENTITY`/`IOS_PROVISION_PROFILE_NAME` oder die Xcode-Version im Workflow (aktuell `15.4`, ggf. an die dann unterstützte .NET-8-MAUI-Workload-Version anpassen). Bei einer Fehlermeldung im Actions-Log gerne den Log-Ausschnitt schicken, dann schaue ich mir das gezielt an.
+
+### Node-20-Warnung/-Fehler ("Node 20 actions are deprecated")
+
+GitHub stellt die Actions-Runtime schrittweise von Node 20 auf Node 24 um (Node20 wird am 23. September 2026 komplett entfernt). Der Workflow nutzt bereits die aktuellen, Node-24-fähigen Versionen (`actions/checkout@v7`, `actions/setup-dotnet@v6`, `actions/upload-artifact@v7`, `maxim-lobanov/setup-xcode@v1.7.0`). Taucht die Meldung trotzdem wieder auf, hat vermutlich eine der Actions inzwischen eine neuere Version veröffentlicht, oder GitHub hat die Übergangsfrist weiter verschoben – dann einfach den aktuellen Log-Ausschnitt schicken, ich prüfe die passenden Versionen erneut.

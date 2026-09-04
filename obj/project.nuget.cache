@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "u+dGvzDn1o8=",
+  "dgSpecHash": "W5WYBRw0knw=",
   "success": true,
   "projectFilePath": "E:\\Git\\Wawi\\SchnullerkettchenMobile\\SchnullerkettchenMobile.csproj",
   "expectedPackageFiles": [
@@ -112,10 +112,6 @@
     "C:\\Users\\info\\.nuget\\packages\\xamarin.kotlin.stdlib.jdk8\\1.9.0.1\\xamarin.kotlin.stdlib.jdk8.1.9.0.1.nupkg.sha512",
     "C:\\Users\\info\\.nuget\\packages\\xamarin.kotlinx.coroutines.android\\1.7.2.1\\xamarin.kotlinx.coroutines.android.1.7.2.1.nupkg.sha512",
     "C:\\Users\\info\\.nuget\\packages\\xamarin.kotlinx.coroutines.core.jvm\\1.7.2.1\\xamarin.kotlinx.coroutines.core.jvm.1.7.2.1.nupkg.sha512",
-    "C:\\Users\\info\\.nuget\\packages\\microsoft.android.runtime.34.android-x64\\34.0.154\\microsoft.android.runtime.34.android-x64.34.0.154.nupkg.sha512",
-    "C:\\Users\\info\\.nuget\\packages\\microsoft.android.runtime.34.android-arm64\\34.0.154\\microsoft.android.runtime.34.android-arm64.34.0.154.nupkg.sha512",
-    "C:\\Users\\info\\.nuget\\packages\\microsoft.android.ref.34\\34.0.154\\microsoft.android.ref.34.34.0.154.nupkg.sha512",
-    "C:\\Users\\info\\.nuget\\packages\\microsoft.android.runtime.34.android-arm\\34.0.154\\microsoft.android.runtime.34.android-arm.34.0.154.nupkg.sha512",
     "C:\\Users\\info\\.nuget\\packages\\microsoft.ios.ref.net8.0_18.0\\18.0.8324\\microsoft.ios.ref.net8.0_18.0.18.0.8324.nupkg.sha512",
     "C:\\Users\\info\\.nuget\\packages\\microsoft.ios.runtime.iossimulator-x64.net8.0_18.0\\18.0.8324\\microsoft.ios.runtime.iossimulator-x64.net8.0_18.0.18.0.8324.nupkg.sha512"
   ],
