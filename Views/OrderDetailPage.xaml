@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:SchnullerkettchenMobile.Models"
+             x:Class="SchnullerkettchenMobile.Views.OrderDetailPage"
+             Title="Bestellung">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="15" Spacing="4">
+
+            <ActivityIndicator x:Name="Ladeanzeige" IsRunning="False" IsVisible="False" />
+
+            <Label x:Name="BestellnummerLabel" FontSize="13" TextColor="{StaticResource Gray600}" />
+
+            <Label Text="Kunde" Style="{StaticResource SectionHeader}" />
+            <Label x:Name="NameLabel" FontSize="17" FontAttributes="Bold" />
+            <Label x:Name="AdresseLabel" />
+            <Label x:Name="LandLabel" />
+            <Label x:Name="EmailLabel" />
+
+            <Label x:Name="AbweichendeAdresseHeader" Text="Abweichende Lieferadresse" Style="{StaticResource SectionHeader}" IsVisible="False" />
+            <Label x:Name="LieferNameLabel" FontAttributes="Bold" IsVisible="False" />
+            <Label x:Name="LieferAdresseLabel" IsVisible="False" />
+            <Label x:Name="LieferLandLabel" IsVisible="False" />
+
+            <Button Text="Adressetikett drucken" Clicked="OnEtikettDrucken" Margin="0,14,0,0" />
+
+            <Label Text="Bestelldaten" Style="{StaticResource SectionHeader}" />
+            <Label x:Name="DatumLabel" />
+            <Label x:Name="StatusLabel" />
+            <Label x:Name="ZahlungsartLabel" />
+            <Label x:Name="PreisLabel" FontAttributes="Bold" />
+            <Label x:Name="NachrichtLabel" IsVisible="False" />
+
+            <Label Text="Artikel" Style="{StaticResource SectionHeader}" />
+            <Label x:Name="KeineArtikelHinweis" Text="Keine Artikel gefunden." IsVisible="False"
+                   TextColor="{StaticResource Gray600}" FontSize="13" />
+
+            <!-- BindableLayout statt CollectionView: die Positionsliste steckt in der Seiten-
+                 ScrollView (siehe gleiche Begründung wie bei den Artikel-Varianten). -->
+            <VerticalStackLayout x:Name="ArtikelListe">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="models:OrderItem">
+                        <Grid Padding="0,8" ColumnDefinitions="60,*,Auto" RowDefinitions="Auto,Auto">
+                            <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" StrokeShape="RoundRectangle 6"
+                                    Stroke="{StaticResource Gray200}" StrokeThickness="1" WidthRequest="50" HeightRequest="50" Padding="0"
+                                    VerticalOptions="Start">
+                                <Image Source="{Binding ImageUrl}" Aspect="AspectFill" WidthRequest="50" HeightRequest="50" />
+                            </Border>
+
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding Artikelname}" FontAttributes="Bold" Margin="10,0,0,0" />
+                            <Label Grid.Row="0" Grid.Column="2" Text="{Binding PreisText}" FontAttributes="Bold" />
+                            <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Margin="10,0,0,0" FontSize="12"
+                                   TextColor="{StaticResource Gray600}">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="{Binding Sku}" />
+                                        <Span Text="  ·  Menge: " />
+                                        <Span Text="{Binding Menge}" />
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+                        </Grid>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

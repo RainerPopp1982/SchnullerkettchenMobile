@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SchnullerkettchenMobile.Views.VariantEditPage"
+             Title="Variante bearbeiten">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="15" Spacing="4">
+
+            <ActivityIndicator x:Name="Ladeanzeige" IsRunning="False" IsVisible="False" />
+            <Label x:Name="SkuLabel" FontSize="13" TextColor="{StaticResource Gray600}" />
+
+            <Label Text="Name" Style="{StaticResource FieldLabel}" />
+            <Entry x:Name="NameEntry" />
+
+            <Label Text="Preis (EUR)" Style="{StaticResource FieldLabel}" />
+            <Entry x:Name="PreisEntry" Keyboard="Numeric" />
+
+            <Label Text="Bestand" Style="{StaticResource FieldLabel}" />
+            <Entry x:Name="BestandEntry" Keyboard="Numeric" />
+
+            <Label Text="Variante 1" Style="{StaticResource FieldLabel}" />
+            <Entry x:Name="Var1Entry" />
+
+            <Label Text="Variante 2" Style="{StaticResource FieldLabel}" />
+            <Entry x:Name="Var2Entry" />
+
+            <Label Text="Variante 3" Style="{StaticResource FieldLabel}" />
+            <Entry x:Name="Var3Entry" />
+
+            <HorizontalStackLayout Spacing="6" Margin="0,14,0,0">
+                <Switch x:Name="AktivSwitch" />
+                <Label Text="Aktiv" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout Spacing="6">
+                <Switch x:Name="SelectedSwitch" />
+                <Label Text="Auswählbar (selected)" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
+            <Button Text="Speichern" Clicked="OnSpeichern" Margin="0,16,0,0" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:SchnullerkettchenMobile.Models"
+             x:Class="SchnullerkettchenMobile.Views.OrdersPage"
+             Title="Bestellungen">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Padding="15" RowSpacing="8">
+
+        <HorizontalStackLayout Grid.Row="0" Spacing="24">
+            <RadioButton x:Name="RadioOffen" Content="Offen" GroupName="Filter" IsChecked="True" CheckedChanged="OnFilterChanged" />
+            <RadioButton x:Name="RadioAlle" Content="Alle" GroupName="Filter" CheckedChanged="OnFilterChanged" />
+        </HorizontalStackLayout>
+
+        <SearchBar Grid.Row="1" x:Name="SuchfeldBox" Placeholder="E-Mail oder Adresse suchen" SearchButtonPressed="OnSuchen" />
+
+        <ActivityIndicator Grid.Row="2" x:Name="Ladeanzeige" IsRunning="False" IsVisible="False" />
+        <Label Grid.Row="2" x:Name="LeerHinweis" Text="Keine Bestellungen gefunden." IsVisible="False"
+               TextColor="{StaticResource Gray600}" HorizontalOptions="Center" Margin="0,20,0,0" />
+
+        <CollectionView Grid.Row="3" x:Name="BestellungenListe">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:OrderSummary">
+                    <Grid Padding="0,10" ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnBestellungTapped" CommandParameter="{Binding Kundennummer}" />
+                        </Grid.GestureRecognizers>
+
+                        <Label Grid.Row="0" Grid.Column="0" Text="{Binding FullName}" FontAttributes="Bold" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding PreisText}" FontAttributes="Bold" />
+                        <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Adresse}" FontSize="13" TextColor="{StaticResource Gray600}" />
+                        <Label Grid.Row="2" Grid.ColumnSpan="2" FontSize="12" TextColor="{StaticResource Gray600}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{Binding DatumText}" />
+                                    <Span Text="  ·  Status: " />
+                                    <Span Text="{Binding Bestellstatus}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <BoxView Grid.Row="3" Grid.ColumnSpan="2" HeightRequest="1" Color="{StaticResource Gray200}" Margin="0,8,0,0" />
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </Grid>
+
+</ContentPage>

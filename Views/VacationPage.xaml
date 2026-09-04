@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SchnullerkettchenMobile.Views.VacationPage"
+             Title="Urlaubseinstellung">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="15" Spacing="4">
+
+            <ActivityIndicator x:Name="Ladeanzeige" IsRunning="False" IsVisible="False" />
+
+            <HorizontalStackLayout Spacing="8" Margin="0,4,0,0">
+                <Switch x:Name="AktivSwitch" />
+                <Label Text="Urlaubsmodus aktiv" VerticalOptions="Center" FontAttributes="Bold" />
+            </HorizontalStackLayout>
+
+            <Label Text="Zeitraum" Style="{StaticResource SectionHeader}" />
+
+            <Label Text="Von" Style="{StaticResource FieldLabel}" />
+            <DatePicker x:Name="VonPicker" />
+
+            <Label Text="Bis" Style="{StaticResource FieldLabel}" />
+            <DatePicker x:Name="BisPicker" />
+
+            <Label Text="Wieder verfügbar ab" Style="{StaticResource FieldLabel}" />
+            <DatePicker x:Name="AbPicker" />
+
+            <Label Text="Lieferzeit während des Urlaubs (Tage)" Style="{StaticResource SectionHeader}" />
+            <Grid ColumnDefinitions="*,20,*">
+                <VerticalStackLayout Grid.Column="0">
+                    <Label Text="Von" Style="{StaticResource FieldLabel}" />
+                    <Entry x:Name="LieferzeitVonEntry" Keyboard="Numeric" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="2">
+                    <Label Text="Bis" Style="{StaticResource FieldLabel}" />
+                    <Entry x:Name="LieferzeitBisEntry" Keyboard="Numeric" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <Label Text="Urlaubstext" Style="{StaticResource SectionHeader}" />
+            <Editor x:Name="UrlaubstextEditor" HeightRequest="120" AutoSize="TextChanges" />
+
+            <Label Text="Urlaubsbild" Style="{StaticResource SectionHeader}" />
+            <Border StrokeShape="RoundRectangle 8" Stroke="{StaticResource Gray200}" StrokeThickness="1"
+                    WidthRequest="180" HeightRequest="180" Padding="0" HorizontalOptions="Start">
+                <Image x:Name="BildVorschau" Aspect="AspectFill" WidthRequest="180" HeightRequest="180" />
+            </Border>
+            <Button Text="Bild auswählen" Clicked="OnBildAuswaehlen" Margin="0,8,0,0" />
+
+            <Button Text="Speichern" Clicked="OnSpeichern" Margin="0,16,0,0" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

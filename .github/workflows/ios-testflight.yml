@@ -1,0 +1,109 @@
+name: iOS Build (TestFlight)
+
+# "iTunes" heißt heute App Store Connect (früher iTunes Connect) - dieser Workflow baut die App
+# und lädt sie direkt zu TestFlight hoch. Für internen Einsatz sogar praktischer als die Ad-Hoc-
+# IPA aus ios-build.yml: keine Geräte-UDIDs registrieren, Tester werden einfach per E-Mail
+# eingeladen, Installation läuft über die offizielle TestFlight-App.
+# Voraussetzung: die in IOS-CI-ANLEITUNG.md (Abschnitt "TestFlight") beschriebenen Secrets/
+# Variablen sind im Repository hinterlegt.
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'SchnullerkettchenMobile.csproj'
+      - '**/*.cs'
+      - '**/*.xaml'
+      - '.github/workflows/ios-testflight.yml'
+
+jobs:
+  build-and-upload:
+    runs-on: macos-26
+
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v7
+
+      - name: .NET SDK installieren
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Xcode-Version festlegen
+        uses: maxim-lobanov/setup-xcode@v1.7.0
+        with:
+          xcode-version: '26.6'
+
+      - name: MAUI-Workload installieren
+        run: dotnet workload install maui --source https://api.nuget.org/v3/index.json
+
+      # Gleiches Zertifikat wie beim Ad-Hoc-Build (Apple Distribution deckt beides ab) - aber
+      # ein ANDERES Provisioning-Profil vom Typ "App Store" statt "Ad Hoc" (siehe Anleitung).
+      - name: Signatur-Zertifikat und App-Store-Profil einrichten
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_P12_BASE64 }}
+          P12_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.IOS_APPSTORE_PROVISION_PROFILE_BASE64 }}
+          KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
+        run: |
+          set -e
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
+          KEYCHAIN_PATH=$RUNNER_TEMP/ios-build.keychain-db
+
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
+          echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH login.keychain
+
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
+
+      # -p:ApplicationVersion setzt bei jedem Lauf automatisch eine neue, eindeutig steigende
+      # Build-Nummer (CFBundleVersion) auf die GitHub-Actions-Laufnummer - TestFlight lehnt sonst
+      # jeden zweiten Upload mit "duplicate build number" ab, wenn man das Hochzählen von Hand
+      # vergisst.
+      - name: iOS-App bauen und signieren
+        run: >
+          dotnet publish SchnullerkettchenMobile.csproj
+          -f net10.0-ios
+          -c Release
+          -p:RuntimeIdentifier=ios-arm64
+          -p:ArchiveOnBuild=true
+          -p:ApplicationVersion=${{ github.run_number }}
+          -p:CodesignKey="${{ vars.IOS_CODESIGN_IDENTITY }}"
+          -p:CodesignProvision="${{ vars.IOS_APPSTORE_PROVISION_PROFILE_NAME }}"
+          -o ./publish-output
+
+      # Der genaue Dateiname der erzeugten .ipa hängt vom MAUI-SDK-Stand ab - hier robust per
+      # find statt fest verdrahtet, damit ein Namenswechsel den Workflow nicht stillschweigend
+      # bricht (find schlägt fehl, wenn keine oder mehr als eine .ipa gefunden wird).
+      - name: IPA-Datei finden
+        id: find_ipa
+        run: |
+          set -e
+          IPA_PATH=$(find ./publish-output -name '*.ipa' -print -quit)
+          if [ -z "$IPA_PATH" ]; then
+            echo "Keine .ipa in ./publish-output gefunden" >&2
+            exit 1
+          fi
+          echo "path=$IPA_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: An TestFlight hochladen
+        uses: apple-actions/upload-testflight-build@v5
+        with:
+          app-path: ${{ steps.find_ipa.outputs.path }}
+          issuer-id: ${{ vars.APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ vars.APPSTORE_API_KEY_ID }}
+          api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+          uses-non-exempt-encryption: 'false'
+
+      - name: Keychain entfernen
+        if: always()
+        run: security delete-keychain $RUNNER_TEMP/ios-build.keychain-db || true

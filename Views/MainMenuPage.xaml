@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SchnullerkettchenMobile.Views.MainMenuPage"
+             Title="Schnullerkettchen WaWi">
+
+    <VerticalStackLayout VerticalOptions="Center" Padding="30" Spacing="20">
+
+        <Label Text="Schnullerkettchen WaWi" FontSize="24" FontAttributes="Bold" HorizontalOptions="Center" Margin="0,0,0,20" />
+
+        <Button Text="Bestellungen" Clicked="OnBestellungenClicked" HeightRequest="60" FontSize="18" />
+        <Button Text="Artikelsuche" Clicked="OnArtikelsucheClicked" HeightRequest="60" FontSize="18" />
+        <Button Text="Urlaubseinstellung" Clicked="OnUrlaubClicked" HeightRequest="60" FontSize="18" />
+
+    </VerticalStackLayout>
+
+</ContentPage>

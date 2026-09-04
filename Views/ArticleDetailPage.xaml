@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:SchnullerkettchenMobile.Models"
+             x:Class="SchnullerkettchenMobile.Views.ArticleDetailPage"
+             Title="Artikel bearbeiten">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="15" Spacing="4">
+
+            <ActivityIndicator x:Name="Ladeanzeige" IsRunning="False" IsVisible="False" />
+
+            <Label x:Name="ArtikelIdLabel" FontSize="13" TextColor="{StaticResource Gray600}" />
+
+            <!-- Bilder: Anzeige + Hinzufügen/Ersetzen/Löschen (Kamera/Galerie, 3 Größen wie am Desktop) -->
+            <Label Text="Bilder" Style="{StaticResource SectionHeader}" />
+            <Label Text="Zum Ersetzen oder Löschen ein Bild antippen." Style="{StaticResource FieldLabel}" />
+            <Label x:Name="KeineBilderHinweis" Text="Keine Bilder vorhanden." IsVisible="False"
+                   TextColor="{StaticResource Gray600}" FontSize="13" />
+            <ScrollView Orientation="Horizontal" HeightRequest="120" IsVisible="False" x:Name="BilderScroll">
+                <HorizontalStackLayout x:Name="BilderListe" Spacing="10">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:ArticleImage">
+                            <Border StrokeShape="RoundRectangle 8" Stroke="{StaticResource Gray200}" StrokeThickness="1"
+                                    WidthRequest="110" HeightRequest="110" Padding="0">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnBildTapped" CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                                <Image Source="{Binding ThumbnailUrl}" Aspect="AspectFill" WidthRequest="110" HeightRequest="110" />
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </HorizontalStackLayout>
+            </ScrollView>
+            <Button Text="Bild hinzufügen" Clicked="OnBildHinzufuegen" Margin="0,8,0,0" />
+            <ActivityIndicator x:Name="BildLadeanzeige" IsRunning="False" IsVisible="False" Margin="0,4,0,0" />
+
+            <!-- Grunddaten -->
+            <Label Text="Grunddaten" Style="{StaticResource SectionHeader}" />
+
+            <Label Text="Artikelname" Style="{StaticResource FieldLabel}" />
+            <Entry x:Name="NameEntry" />
+
+            <Label Text="Preis (EUR)" Style="{StaticResource FieldLabel}" />
+            <Entry x:Name="PreisEntry" Keyboard="Numeric" />
+
+            <Label Text="Bestand" Style="{StaticResource FieldLabel}" />
+            <Entry x:Name="BestandEntry" Keyboard="Numeric" />
+
+            <Label Text="Max. Buchstaben" Style="{StaticResource FieldLabel}" />
+            <Entry x:Name="MaxBuchstabenEntry" Keyboard="Numeric" />
+
+            <HorizontalStackLayout Spacing="6" Margin="0,10,0,0">
+                <Switch x:Name="AktivSwitch" />
+                <Label Text="Aktiv" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Spacing="6">
+                <Switch x:Name="StartseiteSwitch" />
+                <Label Text="Startseite" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Spacing="6">
+                <Switch x:Name="GoogleSwitch" />
+                <Label Text="Google" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
+            <Button Text="Grunddaten speichern" Clicked="OnGrunddatenSpeichern" Margin="0,12,0,0" />
+
+            <!-- Beschreibung -->
+            <Label Text="Beschreibung" Style="{StaticResource SectionHeader}" />
+            <Label Text="HTML-Quelltext (kein Bild-Upload in dieser App)" Style="{StaticResource FieldLabel}" />
+            <Editor x:Name="BeschreibungEditor" HeightRequest="180" AutoSize="TextChanges" />
+            <Button Text="Beschreibung speichern" Clicked="OnBeschreibungSpeichern" Margin="0,8,0,0" />
+
+            <!-- SEO -->
+            <Label Text="SEO-URL" Style="{StaticResource SectionHeader}" />
+            <Entry x:Name="SeoUrlEntry" />
+            <HorizontalStackLayout Spacing="8" Margin="0,8,0,0">
+                <Button Text="Neu erzeugen" Clicked="OnSeoNeuErzeugen" />
+                <Button Text="Speichern" Clicked="OnSeoSpeichern" />
+            </HorizontalStackLayout>
+
+            <!-- Varianten -->
+            <Label Text="Varianten" Style="{StaticResource SectionHeader}" />
+            <Label x:Name="KeineVariantenHinweis" Text="Keine Varianten vorhanden." IsVisible="False"
+                   TextColor="{StaticResource Gray600}" FontSize="13" />
+
+            <!-- BindableLayout statt CollectionView: die Varianten-Liste steckt in der Seiten-
+                 ScrollView und braucht daher eine an den Inhalt angepasste Höhe statt einer
+                 eigenen (dann ineinander verschachtelten) Scroll-Fähigkeit. Für die kurze
+                 Variantenliste eines einzelnen Artikels unproblematisch. -->
+            <VerticalStackLayout x:Name="VariantenListe">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="models:ArticleVariant">
+                        <Grid Padding="8,10" ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnVarianteTapped" CommandParameter="{Binding VariantId}" />
+                            </Grid.GestureRecognizers>
+
+                            <Label Grid.Row="0" Grid.Column="0" Text="{Binding Name}" FontAttributes="Bold" />
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding PreisText}" FontAttributes="Bold" />
+                            <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" FontSize="12" TextColor="{StaticResource Gray600}"
+                                   Text="{Binding Sku}" />
+                            <BoxView Grid.Row="1" Grid.ColumnSpan="2" HeightRequest="1" Color="{StaticResource Gray200}" VerticalOptions="End" Margin="0,6,0,0" />
+                        </Grid>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
