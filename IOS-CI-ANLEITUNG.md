@@ -34,8 +34,10 @@ Der zweite Befehl fragt interaktiv die Angaben ab – nur ausfüllen:
 
 ```bash
 openssl x509 -in ios_distribution.cer -inform DER -out ios_distribution.pem -outform PEM
-openssl pkcs12 -export -inkey ios_distribution.key -in ios_distribution.pem -out ios_distribution.p12 -password pass:DEIN_PASSWORT
+openssl pkcs12 -export -inkey ios_distribution.key -in ios_distribution.pem -out ios_distribution.p12 -password pass:DEIN_PASSWORT -certpbe PBE-SHA1-3DES -keypbe PBE-SHA1-3DES -macalg SHA1
 ```
+
+**Wichtig:** Die Flags `-certpbe PBE-SHA1-3DES -keypbe PBE-SHA1-3DES -macalg SHA1` sind zwingend nötig. OpenSSL 3.x (Standard unter Git Bash/aktuellem Linux) verschlüsselt `.p12`-Dateien sonst mit SHA-256 als MAC-Algorithmus – Apples `security`-Tool auf dem macOS-Runner versteht das nicht und meldet beim Import fälschlich *"MAC verification failed ... (wrong password?)"*, obwohl das Passwort stimmt. Mit den Legacy-Flags oben tritt der Fehler nicht auf.
 
 ## Schritt 2: Testgeräte registrieren (nur für Ad-Hoc, für TestFlight überspringen)
 
@@ -150,6 +152,10 @@ Das Repository muss **privat** bleiben (siehe oben). Private Repos haben ein mon
 ## Hinweis zur Zuverlässigkeit
 
 Dieser Workflow wurde nach bekannten, gängigen Mustern für .NET-MAUI-iOS-CI-Builds erstellt, aber in dieser Umgebung nicht selbst gegen einen echten Apple-Account getestet (kein Zugriff auf Xcode/macOS). Beim ersten echten Lauf kann es sein, dass Feinheiten nachjustiert werden müssen – am wahrscheinlichsten die exakte Schreibweise von `IOS_CODESIGN_IDENTITY`/`IOS_PROVISION_PROFILE_NAME` oder die Xcode-Version im Workflow (aktuell `15.4`, ggf. an die dann unterstützte .NET-8-MAUI-Workload-Version anpassen). Bei einer Fehlermeldung im Actions-Log gerne den Log-Ausschnitt schicken, dann schaue ich mir das gezielt an.
+
+### Fehler NETSDK1202 ("workload ... is out of support")
+
+Das Projekt wurde ursprünglich mit `net8.0-android`/`net8.0-ios` angelegt. Microsofts .NET-MAUI-Support-Policy (aka.ms/maui-support-policy) hat diese Workloads inzwischen als "out of support" eingestuft – aktuelle .NET-SDKs (der macOS-Runner bringt mittlerweile .NET 10 mit) lehnen den Build dann mit `NETSDK1202` komplett ab, oft zusammen mit einem `NU1101`-Fehler zu einem nicht auffindbaren Runtime-Paket. Behoben durch Anheben von `SchnullerkettchenMobile.csproj` und beiden Workflow-Dateien auf `net10.0-android`/`net10.0-ios` (aktuelle LTS-Version). **Wichtig:** Das betrifft nicht nur GitHub Actions – auch ein lokaler Build in Visual Studio schlägt fehl, sobald dort ebenfalls ein neueres .NET-SDK installiert ist; Visual Studio braucht dafür die **.NET 10 SDK**. Sollte dieser Fehler in einigen Monaten wieder auftauchen (Microsoft stuft TFMs regelmäßig neu ein), einfach die TargetFrameworks auf die dann aktuelle .NET-Version anheben – gleiches Prinzip.
 
 ### Node-20-Warnung/-Fehler ("Node 20 actions are deprecated")
 

@@ -10,7 +10,8 @@
 
 - Visual Studio 2022 (17.8+) mit der Workload **".NET Multi-platform App UI development"**.
 - Für Android: Android-SDK wird von Visual Studio automatisch mitverwaltet.
-- **Für iOS: ein Mac mit Xcode ist zwingend erforderlich** (entweder direkt oder als "Pair to Mac" von Windows aus). Ohne Mac kann das `net8.0-ios`-Target nicht gebaut werden – das Projekt lässt sich aber unabhängig davon ganz normal für Android bauen und testen.
+- **Für iOS: ein Mac mit Xcode ist zwingend erforderlich** (entweder direkt oder als "Pair to Mac" von Windows aus). Ohne Mac kann das `net10.0-ios`-Target nicht gebaut werden – das Projekt lässt sich aber unabhängig davon ganz normal für Android bauen und testen.
+- **Ziel-Framework:** `net10.0-android`/`net10.0-ios` (ursprünglich net8.0 – auf net10.0 angehoben, weil Microsofts .NET-MAUI-Support-Policy die net8.0-Mobile-Workloads inzwischen als "out of support" führt und aktuelle SDKs den Build sonst mit Fehler NETSDK1202 verweigern). Visual Studio muss die **.NET 10 SDK** installiert haben.
 
 Projekt einfach über `SchnullerkettchenMobile.sln` in Visual Studio öffnen, Zielgerät (Android-Emulator oder Gerät) auswählen, Starten.
 

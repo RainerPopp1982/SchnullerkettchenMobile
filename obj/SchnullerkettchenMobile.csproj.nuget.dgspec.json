@@ -23,8 +23,8 @@
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "net8.0-android",
-          "net8.0-ios"
+          "net10.0-android",
+          "net10.0-ios"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
@@ -32,12 +32,12 @@
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net8.0-android34.0": {
-            "targetAlias": "net8.0-android",
+          "net10.0-android": {
+            "targetAlias": "net10.0-android",
             "projectReferences": {}
           },
-          "net8.0-ios18.0": {
-            "targetAlias": "net8.0-ios",
+          "net10.0-ios26.5": {
+            "targetAlias": "net10.0-ios",
             "projectReferences": {}
           }
         },
@@ -49,45 +49,13 @@
         "restoreAuditProperties": {
           "enableAudit": "true",
           "auditLevel": "low",
-          "auditMode": "direct"
+          "auditMode": "all"
         },
         "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
-        "net8.0-android34.0": {
-          "targetAlias": "net8.0-android",
-          "dependencies": {
-            "FluentFTP": {
-              "target": "Package",
-              "version": "[53.0.2, )"
-            },
-            "Microsoft.Extensions.Logging.Debug": {
-              "target": "Package",
-              "version": "[8.0.0, )"
-            },
-            "Microsoft.Maui.Controls": {
-              "target": "Package",
-              "version": "[8.0.100, )"
-            },
-            "Microsoft.Maui.Controls.Compatibility": {
-              "target": "Package",
-              "version": "[8.0.100, )"
-            },
-            "Microsoft.NET.ILLink.Tasks": {
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[8.0.25, )",
-              "autoReferenced": true
-            },
-            "MySqlConnector": {
-              "target": "Package",
-              "version": "[2.6.2, )"
-            },
-            "SkiaSharp": {
-              "target": "Package",
-              "version": "[3.119.4, )"
-            }
-          },
+        "net10.0-android": {
+          "targetAlias": "net10.0-android",
           "imports": [
             "net461",
             "net462",
@@ -99,50 +67,10 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "frameworkReferences": {
-            "Microsoft.Android": {
-              "privateAssets": "all"
-            },
-            "Microsoft.NETCore.App": {
-              "privateAssets": "all"
-            }
-          },
           "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312/PortableRuntimeIdentifierGraph.json"
         },
-        "net8.0-ios18.0": {
-          "targetAlias": "net8.0-ios",
-          "dependencies": {
-            "FluentFTP": {
-              "target": "Package",
-              "version": "[53.0.2, )"
-            },
-            "Microsoft.Extensions.Logging.Debug": {
-              "target": "Package",
-              "version": "[8.0.0, )"
-            },
-            "Microsoft.Maui.Controls": {
-              "target": "Package",
-              "version": "[8.0.100, )"
-            },
-            "Microsoft.Maui.Controls.Compatibility": {
-              "target": "Package",
-              "version": "[8.0.100, )"
-            },
-            "Microsoft.NET.ILLink.Tasks": {
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[8.0.25, )",
-              "autoReferenced": true
-            },
-            "MySqlConnector": {
-              "target": "Package",
-              "version": "[2.6.2, )"
-            },
-            "SkiaSharp": {
-              "target": "Package",
-              "version": "[3.119.4, )"
-            }
-          },
+        "net10.0-ios26.5": {
+          "targetAlias": "net10.0-ios",
           "imports": [
             "net461",
             "net462",
@@ -154,24 +82,6 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.iOS.Ref.net8.0_18.0",
-              "version": "[18.0.8324, 18.0.8324]"
-            },
-            {
-              "name": "Microsoft.iOS.Runtime.iossimulator-x64.net8.0_18.0",
-              "version": "[18.0.8324, 18.0.8324]"
-            }
-          ],
-          "frameworkReferences": {
-            "Microsoft.iOS": {
-              "privateAssets": "all"
-            },
-            "Microsoft.NETCore.App": {
-              "privateAssets": "all"
-            }
-          },
           "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312/PortableRuntimeIdentifierGraph.json"
         }
       },

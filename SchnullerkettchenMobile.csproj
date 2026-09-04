@@ -1,7 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0-android;net8.0-ios</TargetFrameworks>
+    <!-- Ursprünglich net8.0-*, aber die net8.0-android/net8.0-ios-Workloads gelten laut
+         Microsofts MAUI-Support-Policy (aka.ms/maui-support-policy) inzwischen als "out of
+         support" - aktuelle .NET-SDKs (hier: 10.x auf dem GitHub-Actions-macOS-Runner) lehnen
+         den Build dagegen mit NETSDK1202 komplett ab. Daher auf net10.0-* (aktuelle LTS-Version,
+         Stand September 2026) angehoben. -->
+    <TargetFrameworks>net10.0-android;net10.0-ios</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <RootNamespace>SchnullerkettchenMobile</RootNamespace>
     <UseMaui>true</UseMaui>
@@ -43,7 +48,7 @@
     <!-- Microsoft.Maui.Controls wird über UseMaui/das MAUI-Workload implizit in der passenden
          Version referenziert - hier bewusst nicht nochmal explizit mit fester Version gepinnt,
          das würde nur zu Versionskonflikten mit dem installierten Workload führen. -->
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
     <!-- MySqlConnector statt MySql.Data: reine .NET-Implementierung ohne native Abhängigkeiten,
          dadurch zuverlässiger auf Android/iOS als der ADO.NET-Treiber der Desktop-App. -->
     <PackageReference Include="MySqlConnector" Version="2.6.2" />

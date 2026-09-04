@@ -26,7 +26,7 @@ jobs:
       - name: .NET SDK installieren
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '10.0.x'
 
       # Xcode-Version fixieren, damit der Build nicht durch einen Runner-Image-Wechsel plötzlich
       # bricht. Passende Version ggf. an die jeweils unterstützte .NET-MAUI-iOS-Workload-Version
@@ -74,7 +74,7 @@ jobs:
       - name: iOS-App bauen und signieren
         run: >
           dotnet publish SchnullerkettchenMobile.csproj
-          -f net8.0-ios
+          -f net10.0-ios
           -c Release
           -p:RuntimeIdentifier=ios-arm64
           -p:ArchiveOnBuild=true
