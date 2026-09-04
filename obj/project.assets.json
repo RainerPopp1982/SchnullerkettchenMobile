@@ -10192,7 +10192,7 @@
         }
       }
     },
-    "net10.0-android/iossimulator-x64": {
+    "net10.0-android/ios-arm64": {
       "FluentFTP/53.0.2": {
         "type": "package",
         "compile": {
@@ -14843,7 +14843,7 @@
         }
       }
     },
-    "net10.0-ios/iossimulator-x64": {
+    "net10.0-ios/ios-arm64": {
       "FluentFTP/53.0.2": {
         "type": "package",
         "compile": {
@@ -15360,9 +15360,9 @@
           "lib/net10.0-ios26.2/_._": {}
         },
         "native": {
-          "runtimes/iossimulator/native/libSkiaSharp.framework/Info.plist": {},
-          "runtimes/iossimulator/native/libSkiaSharp.framework/_CodeSignature/CodeResources": {},
-          "runtimes/iossimulator/native/libSkiaSharp.framework/libSkiaSharp": {}
+          "runtimes/ios/native/libSkiaSharp.framework/Info.plist": {},
+          "runtimes/ios/native/libSkiaSharp.framework/_CodeSignature/CodeResources": {},
+          "runtimes/ios/native/libSkiaSharp.framework/libSkiaSharp": {}
         },
         "build": {
           "buildTransitive/net10.0-ios26.2/SkiaSharp.NativeAssets.iOS.targets": {}
@@ -19848,7 +19848,7 @@
       "android-x64": {
         "#import": []
       },
-      "iossimulator-x64": {
+      "ios-arm64": {
         "#import": []
       }
     }

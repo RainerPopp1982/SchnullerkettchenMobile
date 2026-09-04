@@ -69,6 +69,11 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
 
+          # Diagnose: zeigt exakt, welche Signatur-Identität(en) im Keychain gelandet sind - der
+          # String muss 1:1 (inkl. Leerzeichen/Klammern) zur Repository-Variable IOS_CODESIGN_IDENTITY passen.
+          echo "Verfügbare Codesigning-Identitäten im Keychain:"
+          security find-identity -v -p codesigning $KEYCHAIN_PATH
+
       # CODESIGN_IDENTITY und PROVISION_PROFILE_NAME als Repository-"Variables" (nicht Secrets,
       # da unkritisch) hinterlegen - siehe IOS-CI-ANLEITUNG.md für die genauen Werte.
       - name: iOS-App bauen und signieren

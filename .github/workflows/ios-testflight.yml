@@ -65,6 +65,11 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
 
+          # Diagnose: zeigt exakt, welche Signatur-Identität(en) im Keychain gelandet sind - der
+          # String muss 1:1 (inkl. Leerzeichen/Klammern) zur Repository-Variable IOS_CODESIGN_IDENTITY passen.
+          echo "Verfügbare Codesigning-Identitäten im Keychain:"
+          security find-identity -v -p codesigning $KEYCHAIN_PATH
+
       # -p:ApplicationVersion setzt bei jedem Lauf automatisch eine neue, eindeutig steigende
       # Build-Nummer (CFBundleVersion) auf die GitHub-Actions-Laufnummer - TestFlight lehnt sonst
       # jeden zweiten Upload mit "duplicate build number" ab, wenn man das Hochzählen von Hand
