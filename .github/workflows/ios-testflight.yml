@@ -70,6 +70,11 @@ jobs:
           echo "Verfügbare Codesigning-Identitäten im Keychain:"
           security find-identity -v -p codesigning $KEYCHAIN_PATH
 
+          # Diagnose: CodesignProvision braucht den "Name" des Profils (wie im Apple-Developer-Portal
+          # vergeben), NICHT die App-ID/Bundle-ID - hier direkt aus dem Profil ausgelesen.
+          echo "Name des importierten Provisioning-Profils:"
+          security cms -D -i $PP_PATH | plutil -extract Name raw -
+
       # -p:ApplicationVersion setzt bei jedem Lauf automatisch eine neue, eindeutig steigende
       # Build-Nummer (CFBundleVersion) auf die GitHub-Actions-Laufnummer - TestFlight lehnt sonst
       # jeden zweiten Upload mit "duplicate build number" ab, wenn man das Hochzählen von Hand

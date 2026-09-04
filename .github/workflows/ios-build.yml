@@ -74,6 +74,11 @@ jobs:
           echo "Verfügbare Codesigning-Identitäten im Keychain:"
           security find-identity -v -p codesigning $KEYCHAIN_PATH
 
+          # Diagnose: CodesignProvision braucht den "Name" des Profils (wie im Apple-Developer-Portal
+          # vergeben), NICHT die App-ID/Bundle-ID - hier direkt aus dem Profil ausgelesen.
+          echo "Name des importierten Provisioning-Profils:"
+          security cms -D -i $PP_PATH | plutil -extract Name raw -
+
       # CODESIGN_IDENTITY und PROVISION_PROFILE_NAME als Repository-"Variables" (nicht Secrets,
       # da unkritisch) hinterlegen - siehe IOS-CI-ANLEITUNG.md für die genauen Werte.
       - name: iOS-App bauen und signieren
