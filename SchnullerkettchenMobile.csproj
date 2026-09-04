@@ -45,9 +45,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Microsoft.Maui.Controls wird über UseMaui/das MAUI-Workload implizit in der passenden
-         Version referenziert - hier bewusst nicht nochmal explizit mit fester Version gepinnt,
-         das würde nur zu Versionskonflikten mit dem installierten Workload führen. -->
+    <!-- Seit .NET 8 reicht <UseMaui>true</UseMaui> allein nicht mehr, um Microsoft.Maui.Controls
+         automatisch zu referenzieren (Warnung MA002) - deshalb hier explizit, mit der Version,
+         die zum installierten Microsoft.Maui.Sdk-Workload passt. -->
+    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.20" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
     <!-- MySqlConnector statt MySql.Data: reine .NET-Implementierung ohne native Abhängigkeiten,
          dadurch zuverlässiger auf Android/iOS als der ADO.NET-Treiber der Desktop-App. -->

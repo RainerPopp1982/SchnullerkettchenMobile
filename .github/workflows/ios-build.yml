@@ -17,7 +17,7 @@ jobs:
   build-ios:
     # macOS-Runner ist Pflicht - Apples Xcode-Toolchain, die MAUI intern für den iOS-Build
     # aufruft, läuft ausschließlich auf macOS.
-    runs-on: macos-14
+    runs-on: macos-26
 
     steps:
       - name: Repository auschecken
@@ -36,7 +36,7 @@ jobs:
       - name: Xcode-Version festlegen
         uses: maxim-lobanov/setup-xcode@v1.7.0
         with:
-          xcode-version: '15.4'
+          xcode-version: '26.6'
 
       - name: MAUI-Workload installieren
         run: dotnet workload install maui --source https://api.nuget.org/v3/index.json

@@ -157,6 +157,13 @@ Dieser Workflow wurde nach bekannten, gängigen Mustern für .NET-MAUI-iOS-CI-Bu
 
 Das Projekt wurde ursprünglich mit `net8.0-android`/`net8.0-ios` angelegt. Microsofts .NET-MAUI-Support-Policy (aka.ms/maui-support-policy) hat diese Workloads inzwischen als "out of support" eingestuft – aktuelle .NET-SDKs (der macOS-Runner bringt mittlerweile .NET 10 mit) lehnen den Build dann mit `NETSDK1202` komplett ab, oft zusammen mit einem `NU1101`-Fehler zu einem nicht auffindbaren Runtime-Paket. Behoben durch Anheben von `SchnullerkettchenMobile.csproj` und beiden Workflow-Dateien auf `net10.0-android`/`net10.0-ios` (aktuelle LTS-Version). **Wichtig:** Das betrifft nicht nur GitHub Actions – auch ein lokaler Build in Visual Studio schlägt fehl, sobald dort ebenfalls ein neueres .NET-SDK installiert ist; Visual Studio braucht dafür die **.NET 10 SDK**. Sollte dieser Fehler in einigen Monaten wieder auftauchen (Microsoft stuft TFMs regelmäßig neu ein), einfach die TargetFrameworks auf die dann aktuelle .NET-Version anheben – gleiches Prinzip.
 
+### Fehler "This version of .NET for iOS requires Xcode X.Y" / Warnung MA002
+
+Zwei Folgefehler direkt nach dem Umstieg auf `net10.0-ios`:
+
+- **MA002-Warnung** ("Microsoft.Maui.Controls" fehlt) – behoben, indem `<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.20" />` explizit in die `.csproj` aufgenommen wurde (nur eine Warnung, kein Build-Abbruch, aber sauberer gelöst).
+- **Harter Fehler** "requires Xcode 26.6, current version is 15.4" – das net10.0-ios-SDK braucht eine deutlich neuere Xcode-Version als der bisher im Workflow gepinnte Runner mitbringt. Behoben durch `runs-on: macos-26` (statt `macos-14`) und `xcode-version: '26.6'` in beiden Workflow-Dateien – das ist der GitHub-Actions-Runner, der Xcode 26.6 vorinstalliert hat (Stand September 2026). Taucht dieser Fehler später mit einer anderen Versionsnummer wieder auf, einfach die im Fehlertext genannte Xcode-Version eintragen und ggf. auf das dann aktuelle `macos-*`-Runner-Image wechseln.
+
 ### Node-20-Warnung/-Fehler ("Node 20 actions are deprecated")
 
 GitHub stellt die Actions-Runtime schrittweise von Node 20 auf Node 24 um (Node20 wird am 23. September 2026 komplett entfernt). Der Workflow nutzt bereits die aktuellen, Node-24-fähigen Versionen (`actions/checkout@v7`, `actions/setup-dotnet@v6`, `actions/upload-artifact@v7`, `maxim-lobanov/setup-xcode@v1.7.0`). Taucht die Meldung trotzdem wieder auf, hat vermutlich eine der Actions inzwischen eine neuere Version veröffentlicht, oder GitHub hat die Übergangsfrist weiter verschoben – dann einfach den aktuellen Log-Ausschnitt schicken, ich prüfe die passenden Versionen erneut.
