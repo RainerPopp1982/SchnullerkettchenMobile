@@ -1,6 +1,8 @@
 using SchnullerkettchenMobile.Data;
 using SchnullerkettchenMobile.Models;
 using SchnullerkettchenMobile.Util;
+using SchnullerkettchenMobile.Util.BrotherQl;
+using SkiaSharp;
 
 namespace SchnullerkettchenMobile.Views;
 
@@ -93,6 +95,9 @@ public partial class OrderDetailPage : ContentPage
 
     // Etikett wie am Desktop: normale Adresse oder Rechnungs-/Lieferadresse (address_re), je
     // nachdem was in OrderDetail als "abweichend" markiert ist (siehe Models/OrderDetail.cs).
+    // Gedruckt wird direkt über das Netzwerk auf dem Brother QL-820NWB(C) (Util/BrotherQl/) -
+    // klappt das nicht (Drucker aus/nicht im Netz erreichbar), fällt die App automatisch auf
+    // das Share-Sheet zurück (Etikettenbild an z.B. "Brother iPrint&Label" weitergeben).
     private async void OnEtikettDrucken(object sender, EventArgs e)
     {
         if (bestellung == null)
@@ -100,15 +105,50 @@ public partial class OrderDetailPage : ContentPage
             return;
         }
 
+        bool zeigeLand = !string.IsNullOrWhiteSpace(bestellung.EtikettLand)
+            && !bestellung.EtikettLand.Equals("Deutschland", StringComparison.OrdinalIgnoreCase);
+
+        List<string> zeilen = new() { bestellung.EtikettName, bestellung.EtikettStrasse, bestellung.EtikettOrt };
+        if (zeigeLand)
+        {
+            zeilen.Add(bestellung.EtikettLand);
+        }
+
         try
         {
-            string pfad = LabelPrinter.CreateAddressLabel(
-                bestellung.EtikettName, bestellung.EtikettStrasse, bestellung.EtikettOrt, bestellung.EtikettLand);
-            await LabelPrinter.ShareAsync(pfad);
+            QlLabel media = QlMediaCatalog.Adressetikett_62x29;
+            using SKBitmap bitmap = BrotherQlPrinter.RenderAddressLabel(media, zeilen);
+
+            BrotherQlPrinter printer = new();
+            QlPrintStatus status = await printer.PrintLabelAsync(media, bitmap);
+
+            if (status.HasError)
+            {
+                await DisplayAlert("Druckerfehler", string.Join("\n", status.Fehler), "OK");
+            }
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Fehler", "Etikett konnte nicht erzeugt werden:\n" + ex.Message, "OK");
+            // Netzwerkdrucker nicht erreichbar o.ä. - als Rückfallebene das bisherige
+            // Bild+Share-Sheet-Verfahren anbieten, statt komplett zu scheitern.
+            bool viaShareSheet = await DisplayAlert("Drucker nicht erreichbar",
+                ex.Message + "\n\nStattdessen als Bild zum manuellen Drucken teilen?", "Ja", "Abbrechen");
+
+            if (!viaShareSheet)
+            {
+                return;
+            }
+
+            try
+            {
+                string pfad = LabelPrinter.CreateAddressLabel(
+                    bestellung.EtikettName, bestellung.EtikettStrasse, bestellung.EtikettOrt, bestellung.EtikettLand);
+                await LabelPrinter.ShareAsync(pfad);
+            }
+            catch (Exception fallbackEx)
+            {
+                await DisplayAlert("Fehler", "Etikett konnte nicht erzeugt werden:\n" + fallbackEx.Message, "OK");
+            }
         }
     }
 }

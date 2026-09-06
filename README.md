@@ -46,13 +46,16 @@ Entspricht der Desktop-Seite `Programme/Content/Urlaub.xaml` (Shopkonfiguration)
 - **Silikonring/Glöckchen/Karabiner/Zusatztexte/Versand** u.ä. Spezialfelder aus `dekoartikel` sind (wie mittlerweile auch in der Desktop-App) nicht enthalten, um die Bearbeitungsmaske schlank zu halten.
 - Der genaue Status-Wertebereich von `bestellnr.bestaetigt` (0/1 = "offen" laut Vorgabe, was 2/3/... bedeuten ist app-seitig nicht bekannt) wird nur als Rohzahl angezeigt, nicht in Klartext übersetzt.
 
-## Adressetikett-Druck – wichtiger Unterschied zur Desktop-App
+## Adressetikett-Druck – direkt über das Netzwerk, ohne Treiber/SDK
 
-Die Desktop-App druckt Etiketten direkt und automatisch über Brothers **b-PAC-SDK** (COM/ActiveX) auf den Brother QL-820NWB. **b-PAC gibt es nur für Windows** – das lässt sich auf Android/iOS nicht nachbauen. Brother bietet zwar ein eigenes mobiles Print-SDK für Android/iOS an, das erfordert aber eine Registrierung und einen Download über Brothers Entwicklerportal sowie eine native Anbindung – beides war im Rahmen dieser Änderung nicht möglich (kein Zugriff auf das Portal).
+Der Button "Adressetikett drucken" (`Views/OrderDetailPage.xaml.cs`) druckt direkt über WLAN auf dem **Brother QL-820NWB(C)** – ganz ohne Brothers b-PAC-SDK (das ist COM-basiert und funktioniert ohnehin nur unter Windows) und ohne Treiber. Stattdessen spricht `Util/BrotherQl/BrotherQlPrinter.cs` Brothers offiziell dokumentiertes **Raster-Protokoll** direkt über eine rohe TCP-Verbindung auf Port 9100 (Standard-Rohdruckport) – funktioniert identisch unter Windows, Android, iOS und macOS.
 
-**Stattdessen:** Der Button "Adressetikett drucken" erzeugt ein exakt bemessenes Etikettenbild (62×29 mm, 203 dpi – wie die `62x29mmLand.lbx`-Vorlage am Desktop) und öffnet das Betriebssystem-Share-Sheet. Von dort lässt es sich direkt an die kostenlose **"Brother iPrint&Label"-App** (Play Store/App Store) weitergeben, die den QL-820NWB kennt und darüber drucken kann – ein Tap mehr als am Desktop, aber funktioniert ohne proprietäres SDK.
+- **Konfiguration:** IP-Adresse des Druckers in `Util/BrotherQl/PrinterConfig.cs` eintragen (feste IP bzw. DHCP-Reservierung am Router empfohlen).
+- **Etikettengröße:** Standardmäßig 62×29 mm (`QlMediaCatalog.Adressetikett_62x29`, passend zur bisherigen `62x29mm.lbx`-Vorlage am Desktop). Andere Rollen (z. B. Brothers eigenes DK-11201-Adressetikett, 62×100 mm-Versandetikett oder 62 mm-Endlosband) sind in `QlMediaCatalog` bereits hinterlegt, eine andere Standardgröße lässt sich dort mit einer Zeile umstellen.
+- **Vor dem Druck** wird der Druckerstatus abgefragt (Band eingelegt? Klappe zu? eingeschaltet?) – bei einem blockierenden Fehler wird gar nicht erst gedruckt, sondern eine Fehlermeldung angezeigt.
+- **Fällt der Netzwerkdruck aus** (Drucker aus/nicht erreichbar), bietet die App als Rückfallebene weiterhin das bisherige Verfahren an: Etikettenbild erzeugen und über das Betriebssystem-Share-Sheet z. B. an die "Brother iPrint&Label"-App weitergeben.
 
-Falls ihr Zugangsdaten fürs Brother-Entwicklerportal habt bzw. das SDK bereits heruntergeladen ist: sagt Bescheid, dann kann ich eine native Anbindung nachrüsten, die direkt (ohne Share-Sheet-Umweg) druckt.
+Das Byte-Format des Raster-Protokolls stammt aus Brothers "Raster Command Reference QL-800/810W/820NWB" und wurde zusätzlich gegen die quelloffene Bibliothek [brother_ql](https://github.com/pklaus/brother_ql) abgeglichen. Da hier kein echter QL-820NWB zum Testen zur Verfügung stand, kann es sein, dass Schriftgröße/Positionierung nach dem ersten echten Ausdruck noch leicht nachjustiert werden müssen.
 
 ## Projektstruktur
 
@@ -68,6 +71,10 @@ Resources/      Icons, Splash Screen, Farben/Styles (mit Dark-Mode-Unterstützun
 ## Installierbare iOS-Version ohne eigenen Mac
 
 `.github/workflows/ios-build.yml` baut über GitHub Actions (macOS-Runner in der Cloud) eine installierbare Ad-Hoc-IPA, ganz ohne eigenen Mac. Einrichtung (Apple-Zertifikat, Provisioning-Profil, GitHub Secrets) siehe **`IOS-CI-ANLEITUNG.md`**.
+
+## Bauen (Android-APK & iOS-IPA) – Schritt-für-Schritt
+
+Der komplette Alltags-Workflow zum Bauen einer installierbaren Android-APK (lokal) oder iOS-IPA (über GitHub Actions), inklusive Troubleshooting-Tabelle für bereits aufgetretene Fehler: **`BUILD-ANLEITUNG.md`**.
 
 ## Bekannt: nicht in dieser Sandbox gebaut
 
